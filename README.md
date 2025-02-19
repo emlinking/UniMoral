@@ -1,5 +1,7 @@
 # UniMoral: A unified dataset for multilingual moral reasoning
 
+![Moral Reasoning](MoralReasoning.png)
+
 ## Dataset
 UniMoral is a multilingual dataset designed to study moral reasoning as a computational pipeline. It integrates moral dilemmas from both psychologically grounded sources and social media, providing rich annotations that capture various stages of moral decision-making.
 
