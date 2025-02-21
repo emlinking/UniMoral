@@ -33,5 +33,13 @@ We evaluated UniMoral by benchmarking large language models (LLMs) across four k
 ## Citation
 If you use UniMoral dataset in your work, kindly cite the following paper
 ```
-{}
+@misc{kumar2025rulesmeantbrokenunderstanding,
+      title={Are Rules Meant to be Broken? Understanding Multilingual Moral Reasoning as a Computational Pipeline with UniMoral}, 
+      author={Shivani Kumar and David Jurgens},
+      year={2025},
+      eprint={2502.14083},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2502.14083}, 
+}
 ```
