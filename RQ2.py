@@ -1,5 +1,5 @@
 import os
-os.environ['HF_HOME'] = '<Path for HF cache>'
+os.environ['HF_HOME'] = "/shared/0/projects/code-switching/datasets"
 
 from transformers import pipeline
 from huggingface_hub import login
