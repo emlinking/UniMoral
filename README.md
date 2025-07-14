@@ -2,6 +2,12 @@
 
 ![Moral Reasoning](MoralReasoning.png)
 
+## Changes in this Fork
+- Selecting those prompts specificed by the Appendix in the paper: https://arxiv.org/pdf/2502.14083
+- Editing prompts to elicit chain of thought from models.
+- Edits to prompts are accomplished by directly editing PROMPTS{2,3,4}.txt
+- Also fixed typos in original prompts.
+
 ## Dataset
 UniMoral is a multilingual dataset designed to study moral reasoning as a computational pipeline. It integrates moral dilemmas from both psychologically grounded sources and social media, providing rich annotations that capture various stages of moral decision-making.
 
