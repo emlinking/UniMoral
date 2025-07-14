@@ -116,8 +116,8 @@ if __name__ == "__main__":
 
     pipe = pipeline("text-generation", model=model_name, device_map="auto", truncation=True)
 
-    data_file_rq123 = f"Final_data/{language}_long.csv"
-    data_file_rq1 = f"Final_data/{language}_short.csv"
+    data_file_rq123 = f"Final_data/{language}_long_formatted.csv"
+    data_file_rq1 = f"Final_data/{language}_short_formatted.csv"
 
     data = read_data_RQ1(data_file_rq123, data_file_rq1)
 
