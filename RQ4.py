@@ -20,7 +20,8 @@ from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from nltk.translate.meteor_score import single_meteor_score
 from bert_score import score
 
-access_token = "<HF token here>"
+with open("hf_token.txt", "r") as token_file:
+    access_token = token_file.read().strip()
 login(token = access_token)
 
 def set_seed(seed):

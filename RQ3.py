@@ -12,7 +12,8 @@ import random
 import numpy as np
 import torch
 
-access_token = "<HF token here>"
+with open("hf_token.txt", "r") as token_file:
+    access_token = token_file.read().strip()
 login(token = access_token)
 
 def set_seed(seed):
