@@ -178,17 +178,12 @@ if __name__ == "__main__":
         prompt = prompt.replace("[SCENARIO]", inst['scenario'])
         prompt = prompt.replace("[SELECTED_ACTION]", inst['selected_action'])
 
-        if "instruct" in model_name:
-            formatted_prompt = formatted_prompt = f"""
-                ### Instruction:
-                {prompt}
+        formatted_prompt = formatted_prompt = f"""
+            ### Instruction:
+            {prompt}
 
-                ### Response:
-            """
-        else:
-            formatted_prompt = [
-                {"role": "user", "content": prompt},
-            ]
+            ### Response:
+        """
 
         if i == 0:
             print("Example prompt: ", formatted_prompt)
