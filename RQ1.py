@@ -214,7 +214,7 @@ if __name__ == "__main__":
         predictions.append(pred)
 
     ground_truth = [1 if x == 'a' else 2 for x in ground_truth]
-    predictions = [1 if x == 'a' else 2 if x == 'b' else x for x in predictions]
+    predictions = [1 if x == 'a' else 2 if x == 'b' else 0 for x in predictions]
 
     accuracy = accuracy_score(ground_truth, predictions)
     precision = precision_score(ground_truth, predictions)
