@@ -202,7 +202,7 @@ if __name__ == "__main__":
         generations.append(generated_text)
 
         try:
-            generated_text = generated_text.split("consequence of the action is")[1].strip()
+            generated_text = generated_text.lower().split("consequence of the action is")[1].strip()
         except:
             print("generated_text: ", generated_text)
             generated_text = generated_text
