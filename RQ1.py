@@ -217,9 +217,9 @@ if __name__ == "__main__":
     predictions = [1 if x == 'a' else 2 if x == 'b' else 0 for x in predictions]
 
     accuracy = accuracy_score(ground_truth, predictions)
-    precision = precision_score(ground_truth, predictions)
-    recall = recall_score(ground_truth, predictions)
-    f1 = f1_score(ground_truth, predictions)
+    precision = precision_score(ground_truth, predictions, average='weighted')
+    recall = recall_score(ground_truth, predictions, average='weighted')
+    f1 = f1_score(ground_truth, predictions, average='weighted')
 
     results = {
         'formatted_prompts': formatted_prompts,
