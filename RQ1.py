@@ -4,6 +4,7 @@ os.environ['HF_HOME'] = "/shared/0/projects/code-switching/datasets"
 from transformers import AutoTokenizer
 from huggingface_hub import login
 import argparse
+from collections import defaultdict
 import pandas as pd
 import ast
 from tqdm import tqdm
@@ -105,6 +106,7 @@ if __name__ == "__main__":
     parser.add_argument("--top_p", type=float, default=0.95, help="Top-p for nucleus sampling (default: 0.95)")
     parser.add_argument("--top_k", type=int, default=50, help="Top-k for sampling (default: 50)")
     parser.add_argument("--max_tokens", type=int, default=32768, help="Maximum number of tokens to generate (default: 32768)")
+    parser.add_argument("--debug", action='store_true', help="Run in debug mode with fewer samples")
     args = parser.parse_args()
 
     RQ = 1
@@ -128,6 +130,10 @@ if __name__ == "__main__":
     formatted_prompts = []
     ground_truth = []
     predictions = []
+
+    if args.debug:
+        data = data[:2]
+        print("Running in debug mode with 2 samples")
 
     for i, inst in tqdm(enumerate(data)):
         ground_truth.append(inst['gt'])
@@ -196,7 +202,6 @@ if __name__ == "__main__":
 
         generations.append(generated_text)
 
-        generated_text = generated_text.split("### Response:")[1].strip()
         try:
             generated_text = generated_text.split("Selected action is ")[1].strip()
         except:
@@ -218,6 +223,7 @@ if __name__ == "__main__":
     f1 = f1_score(ground_truth, predictions)
 
     results = {
+        'formatted_prompts': formatted_prompts,
         'generations': generations,
         'predictions': predictions,
         'ground truth': ground_truth,
