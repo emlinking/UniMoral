@@ -1,7 +1,7 @@
 import os
 os.environ['HF_HOME'] = "/shared/0/projects/code-switching/datasets"
 
-from transformers import pipeline
+from transformers import AutoTokenizer
 from huggingface_hub import login
 import argparse
 import pandas as pd
@@ -11,6 +11,8 @@ import json
 import random
 import numpy as np
 import torch
+torch.cuda.empty_cache()
+import utils
 
 with open("hf_token.txt", "r") as token_file:
     access_token = token_file.read().strip()
@@ -25,7 +27,7 @@ def set_seed(seed):
 set_seed(42)
 
 act2idx = {'a': 'a', 'b': 'b', '1': 'a', '2': 'b', 1: 'a', 2: 'b'}
-idx2label = ['Deontological', 'Utilitarianism', 'Rights-based', 'Virtuous']
+idx2label = ['Deontological', 'Utilitarianism', 'Rights-based', 'Virtuous', 'Unsure']
 label2idx = {lab:i for i,lab in enumerate(idx2label)}
 idx2moral = ['Care', 'Equality', 'Proportionality', 'Loyalty', 'Authority', 'Purity']
 idx2culture = ['Power Distance', 'Individualism', 'Motivation', 'Uncertainty Avoidance', 'Long Term Orientation', 'Indulgence']
@@ -151,22 +153,25 @@ if __name__ == "__main__":
     parser.add_argument('--model', default='meta-llama/Meta-Llama-3-8B', type=str, help='Model name for pipeline')       ## meta-llama/Meta-Llama-3-8B
     parser.add_argument('--language', default='English', type=str, help='Language out of ["English", "Chinese", "Russian", "Arabic", "Spanish", and "Hindi"]')
     parser.add_argument('--mode', default='desc', type=str, help='Mode out of ["desc", "moral", "culture", "fs", "np"]')
-    parser.add_argument('--batch_size', default=4, type=int, help='Batch size used for generation')
+    parser.add_argument("--temperature", type=float, default=0, help="Temperature for sampling (default: 0)")
+    parser.add_argument("--top_p", type=float, default=0.95, help="Top-p for nucleus sampling (default: 0.95)")
+    parser.add_argument("--top_k", type=int, default=50, help="Top-k for sampling (default: 50)")
+    parser.add_argument("--max_tokens", type=int, default=32768, help="Maximum number of tokens to generate (default: 32768)")
     args = parser.parse_args()
 
     RQ = 2
     mode = args.mode
     language = args.language
     model_name = args.model
-    batch_size = args.batch_size
 
     with open("PROMPTS2.txt", "r") as f:
         PROMPTS = f.read()
     PROMPTS = ast.literal_eval(PROMPTS)
 
-    pipe = pipeline("text-generation", model=model_name, device_map="auto", truncation=True)
+    model = utils.load_model(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    data_file_rq2 = f"Final_data/{language}_long.csv"
+    data_file_rq2 = f"Final_data/{language}_long_formatted.csv"
 
     data = read_data_RQ2(data_file_rq2)
 
@@ -227,18 +232,19 @@ if __name__ == "__main__":
         formatted_prompts.append(formatted_prompt)
 
     print("\nGenerating responses...")
-    generated_outputs = []
-    for i in tqdm(range(0, len(formatted_prompts), batch_size), desc="Generating batches"):
-        batch = formatted_prompts[i:i+batch_size]
-        outputs = pipe(
-            batch
-        )
-        generated_outputs.extend(outputs)
+    inputs, outputs = utils.get_response(model_name, model, tokenizer, formatted_prompts, 
+                                         temperature=args.temperature, top_p=args.top_p, top_k=args.top_k, 
+                                         max_tokens=args.max_tokens)
+
 
     unsure_preds = 0
     predictions = []
-    for output in generated_outputs:
-        generated_text = output[0]['generated_text']
+    generations = []
+    for output in outputs:
+        generated_text = output.outputs[0].text if type(output) is not str else output
+
+        generations.append(generated_text)
+
         generated_text = generated_text.split("### Response:")[1].strip()
         try:
             generated_text = generated_text.split("Selected action is ")[1].strip()
@@ -246,7 +252,7 @@ if __name__ == "__main__":
             print("generated_text: ", generated_text)
             generated_text = generated_text
         response = generated_text.lower().strip()
-        if 'deonological' in response:
+        if 'deontological' in response:
             predictions.append(label2idx['Deontological'])
         elif 'utilitarianism' in response:
             predictions.append(label2idx['Utilitarianism'])
@@ -256,7 +262,7 @@ if __name__ == "__main__":
             predictions.append(label2idx['Virtuous'])
         else:
             unsure_preds += 1
-            predictions.append(label2idx['Deontological'])
+            predictions.append(label2idx['Unsure'])
 
     ground_truth = [[label2idx[x] for x in y] for y in ground_truth]
 
@@ -264,6 +270,7 @@ if __name__ == "__main__":
     accuracy, precision, recall, f1 = calculate_metrics(ground_truth, predictions)
 
     results = {
+        'generations': generations,
         'predictions': predictions,
         'ground truth': ground_truth,
         'accuracy': accuracy,

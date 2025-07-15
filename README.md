@@ -7,6 +7,7 @@
 - Editing prompts to elicit chain of thought from models.
 - Edits to prompts are accomplished by directly editing PROMPTS{2,3,4}.txt
 - Also fixed typos in original prompts.
+- Added utils.py: helper functions containing refactored code to run inference through VLLM for speedup.
 
 ## Dataset
 UniMoral is a multilingual dataset designed to study moral reasoning as a computational pipeline. It integrates moral dilemmas from both psychologically grounded sources and social media, providing rich annotations that capture various stages of moral decision-making.
@@ -26,7 +27,7 @@ We evaluated UniMoral by benchmarking large language models (LLMs) across four k
 
 2. **Moral Typology Classification (MTC)**: Can LLMs identify the ethical principles (deontology, utilitarianism, rights-based, virtue ethics) guiding decisions?  
    - Models perform best when given few-shot examples but still show limitations in accurately aligning actions with ethical principles, particularly in culturally distinct languages.
-   - - You can run the code by ```python RQ2.py --model [HF_MODEL_NAME] --language [Arabic/Chinese/English/Hindi/Russian/Spanish] --mode [desc/moral/culture/fs]```
+   - - You can run the code by ```python RQ2.py --model [HF_MODEL_NAME] --language [Arabic/Chinese/English/Hindi/Russian/Spanish] --mode [desc/moral/culture/fs] --temperature [temperature] --top_p [top_p] --top_k [top_k] --max_tokens [max_tokens]```
 
 3. **Factor Attribution Analysis (FAA)**: Can LLMs determine which factors (e.g., emotions, culture, legality) influence moral decisions?  
    - Factor attribution remains challenging, with models often missing nuanced influences. Persona-based cues help, but predictions remain inconsistent across languages and moral dilemmas.

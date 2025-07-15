@@ -1,7 +1,6 @@
 import os
 os.environ['HF_HOME'] = "/shared/0/projects/code-switching/datasets"
 
-from transformers import pipeline
 from transformers import AutoTokenizer
 from huggingface_hub import login
 import argparse
@@ -19,6 +18,7 @@ import math
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from nltk.translate.meteor_score import single_meteor_score
 from bert_score import score
+import utils
 
 with open("hf_token.txt", "r") as token_file:
     access_token = token_file.read().strip()
@@ -139,7 +139,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='meta-llama/Meta-Llama-3-8B', type=str, help='Model name for pipeline')       ## meta-llama/Meta-Llama-3-8B
     parser.add_argument('--language', default='English', type=str, help='Language out of ["English", "Chinese", "Russian", "Arabic", "Spanish", and "Hindi"]')
-    parser.add_argument('--batch_size', default=4, type=int, help='Batch size used for generation')
+    parser.add_argument("--temperature", type=float, default=0, help="Temperature for sampling (default: 0)")
+    parser.add_argument("--top_p", type=float, default=0.95, help="Top-p for nucleus sampling (default: 0.95)")
+    parser.add_argument("--top_k", type=int, default=50, help="Top-k for sampling (default: 50)")
+    parser.add_argument("--max_tokens", type=int, default=32768, help="Maximum number of tokens to generate (default: 32768)")
     args = parser.parse_args()
 
     RQ = 4
@@ -152,9 +155,10 @@ if __name__ == "__main__":
         PROMPTS = f.read()
     PROMPTS = ast.literal_eval(PROMPTS)
 
-    pipe = pipeline("text-generation", model=model_name, device_map="auto", truncation=True)
+    model = utils.load_model(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    data_file_rq4 = f"Final_data/{language}_long.csv"
+    data_file_rq4 = f"Final_data/{language}_long_formatted.csv"
     data = read_data_RQ4(data_file_rq4)
 
     formatted_prompts = []
@@ -187,22 +191,16 @@ if __name__ == "__main__":
         formatted_prompts.append(formatted_prompt)
 
     print("\nGenerating responses...")
-    generated_outputs = []
-    for i in tqdm(range(0, len(formatted_prompts), batch_size), desc="Generating batches"):
-        batch = formatted_prompts[i:i+batch_size]
-        outputs = pipe(
-            batch,
-            max_new_tokens=2000
-        )
-        generated_outputs.extend(outputs)
+    inputs, outputs = utils.get_response(model_name, model, tokenizer, formatted_prompts, 
+                                         temperature=args.temperature, top_p=args.top_p, top_k=args.top_k, 
+                                         max_tokens=args.max_tokens)
 
     predictions = []
-    for output in generated_outputs:
-        if "instruct" in model_name:
-            generated_text = output[0]['generated_text']
-            generated_text = generated_text.split("### Response:")[1].lower().strip()
-        else:
-            generated_text = output[0]['generated_text'][1]['content']
+    generations = []
+    for output in outputs:
+        generated_text = output.outputs[0].text if type(output) is not str else output
+        generations.append(generated_text)
+
         try:
             generated_text = generated_text.split("consequence of the action is")[1].strip()
         except:
@@ -218,6 +216,7 @@ if __name__ == "__main__":
     print("Average BERTScore (F1):", results['avg_bert_score'])
 
     results = {
+        'generations': generations,
         'predictions': predictions,
         'ground truth': ground_truth,
         'Per sample BLEU': results['bleu'],
