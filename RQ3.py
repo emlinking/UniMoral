@@ -174,7 +174,6 @@ if __name__ == "__main__":
     data_file_rq3 = f"Final_data/{language}_long_formatted.csv"
     data = read_data_RQ3(data_file_rq3)
 
-    print(data)
     formatted_prompts = []
     ground_truth = []
     predictions = []
@@ -276,7 +275,6 @@ if __name__ == "__main__":
 
     ground_truth = [[label2idx[x] for x in y] for y in ground_truth]
 
-    print(ground_truth, predictions)
     accuracy, precision, recall, f1 = calculate_metrics(ground_truth, predictions)
 
     results = {

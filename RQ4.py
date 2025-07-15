@@ -215,7 +215,6 @@ if __name__ == "__main__":
  
         predictions.append(generated_text)
 
-    print(ground_truth, predictions)
     results = evaluate_metrics(predictions, ground_truth, bs_lang)
     print("Average BLEU Score:", results['avg_bleu'])
     print("Average METEOR Score:", results['avg_meteor'])
