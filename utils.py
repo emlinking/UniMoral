@@ -65,7 +65,7 @@ def get_response_deepseek_distill(model, tokenizer, inputs, temperature, top_p, 
             sampling_params,
     ))
 
-def load_model(model):
+def load_model(model, utilization):
     print("Loading model: ", model)
     print("Using the following GPUs: ", os.environ["CUDA_VISIBLE_DEVICES"])
     print("Device name:", torch.cuda.get_device_name(torch.cuda.current_device()))
@@ -73,4 +73,4 @@ def load_model(model):
     num_gpus = len(os.environ["CUDA_VISIBLE_DEVICES"].split(","))
 
     # https://docs.vllm.ai/en/latest/api/vllm/config.html#vllm.config.ModelConfig.max_model_len
-    return LLM(model=model, download_dir=CACHE_DIR, tensor_parallel_size=num_gpus)
+    return LLM(model=model, download_dir=CACHE_DIR, tensor_parallel_size=num_gpus, gpu_memory_utilization=utilization)

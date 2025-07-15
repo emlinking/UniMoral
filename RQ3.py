@@ -155,6 +155,7 @@ if __name__ == "__main__":
     parser.add_argument("--top_k", type=int, default=50, help="Top-k for sampling (default: 50)")
     parser.add_argument("--max_tokens", type=int, default=32768, help="Maximum number of tokens to generate (default: 32768)")
     parser.add_argument("--debug", action='store_true', help="Run in debug mode with fewer samples")
+    parser.add_argument("--utilization", type=float, default=0.9, help="GPU memory utilization for model loading (default: 0.9)")
     args = parser.parse_args()
 
     RQ = 3
@@ -167,7 +168,7 @@ if __name__ == "__main__":
         PROMPTS = f.read()
     PROMPTS = ast.literal_eval(PROMPTS)
 
-    model = utils.load_model(model_name)
+    model = utils.load_model(model_name, utilization=args.utilization)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     data_file_rq3 = f"Final_data/{language}_long_formatted.csv"
