@@ -114,7 +114,6 @@ if __name__ == "__main__":
     mode = args.mode
     language = args.language
     model_name = args.model
-    batch_size = args.batch_size
 
     with open("PROMPTS.txt", "r") as f:
         PROMPTS = f.read()

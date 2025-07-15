@@ -151,7 +151,6 @@ if __name__ == "__main__":
     language = args.language
     bs_lang = bs_lang_dict[language]
     model_name = args.model
-    batch_size = args.batch_size
 
     with open("PROMPTS4.txt", "r") as f:
         PROMPTS = f.read()
